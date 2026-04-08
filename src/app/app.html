@@ -1,0 +1,129 @@
+<ng-template #identityGate>
+  <section class="gate">
+    <div class="gate-card">
+      <img
+        class="brand-logo"
+        src="https://iasi.cursaderatuste.ro/images/logo.png"
+        alt="Cursa de Ratuște Iași"
+      />
+      <p class="eyebrow">Cursa de Rățuște Iași</p>
+      <h1>Cine numără acum rățuștele?</h1>
+      <p class="subtext">Alege un nume salvat sau adaugă unul nou înainte să introduci numerele.</p>
+
+      <label for="known-name">Nume existente</label>
+      <select id="known-name" [(ngModel)]="selectedKnownName" name="knownName">
+        <option value="">Choose a saved counter</option>
+        <option *ngFor="let name of existingNames" [value]="name">{{ name }}</option>
+      </select>
+
+      <label for="new-name">Sau adaugă numele tău</label>
+      <input id="new-name" [(ngModel)]="newNameInput" name="newName" placeholder='example: "Andrada, Maria, Vlad, Edi"' />
+
+      <button type="button" (click)="startCounting()">Începe Numărătoarea</button>
+
+      <p class="feedback" *ngIf="addMessage">{{ addMessage }}</p>
+    </div>
+  </section>
+</ng-template>
+
+<section class="shell" *ngIf="activeCounterName; else identityGate">
+  <header class="hero">
+    <div class="hero-left">
+      <img
+        class="hero-logo"
+        src="https://iasi.cursaderatuste.ro/images/logo.png"
+        alt="Cursa de Ratuște Iași"
+      />
+      <div>
+        <p class="eyebrow">Tablou Live</p>
+        <h1>duckInventory</h1>
+        <p>Contor activ: <strong>{{ activeCounterName }}</strong></p>
+      </div>
+    </div>
+    <button type="button" class="ghost" (click)="switchCounter()">Schimbă Persoana</button>
+  </header>
+
+  <img
+    class="hero-banner"
+    src="https://iasi.cursaderatuste.ro/images/lp_carousel/cdr-1.webp"
+    alt="Cursa de Ratuște Iași"
+  />
+
+  <section class="stats">
+    <article>
+      <h2>{{ countedTotal }}</h2>
+      <p>Counted / 6000</p>
+    </article>
+    <article>
+      <h2>{{ remainingTotal }}</h2>
+      <p>Remaining</p>
+    </article>
+    <article>
+      <h2>{{ completionPercent }}%</h2>
+      <p>Completion</p>
+    </article>
+    <article>
+      <h2 *ngIf="latestEntry; else noLatest">{{ latestEntry.duckNumber }}</h2>
+      <ng-template #noLatest>
+        <h2>-</h2>
+      </ng-template>
+      <p>Latest Duck Added</p>
+    </article>
+  </section>
+
+  <section class="panels">
+    <article class="panel">
+      <h3>Adaugă Număr de Rățușcă</h3>
+      <form (ngSubmit)="addDuck()">
+        <input
+          type="number"
+          name="duckNumberInput"
+          [(ngModel)]="duckNumberInput"
+          min="1"
+          max="6000"
+          placeholder="Număr 1-6000"
+          [disabled]="isAdding"
+          required
+        />
+        <button type="submit" [disabled]="isAdding">{{ isAdding ? 'Se adaugă...' : 'Adaugă Numărul' }}</button>
+      </form>
+      <p class="feedback" *ngIf="addMessage">{{ addMessage }}</p>
+    </article>
+
+    <article class="panel">
+      <h3>Caută Rățușcă</h3>
+      <form (ngSubmit)="searchDuck()">
+        <input
+          type="number"
+          name="searchNumberInput"
+          [(ngModel)]="searchNumberInput"
+          min="1"
+          max="6000"
+          placeholder="Caută număr"
+          [disabled]="isSearching"
+          required
+        />
+        <button type="submit" [disabled]="isSearching">{{ isSearching ? 'Se caută...' : 'Caută' }}</button>
+      </form>
+
+      <p class="feedback" *ngIf="searchMessage">{{ searchMessage }}</p>
+      <div class="search-result" *ngIf="searchResult">
+        <p><strong>Duck {{ searchResult.duckNumber }}</strong></p>
+        <p>Entered by {{ searchResult.enteredBy }}</p>
+        <p>{{ formatTime(searchResult.enteredAtMs) }}</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel live-feed">
+    <h3>Activitate Live</h3>
+    <p class="subtext" *ngIf="!recentEntries.length">Încă nu a fost introdus niciun număr.</p>
+    <ul *ngIf="recentEntries.length">
+      <li *ngFor="let entry of recentEntries; trackBy: trackByDuckNumber">
+        <span class="badge">#{{ entry.duckNumber }}</span>
+        <span>{{ entry.enteredBy }}</span>
+        <span>{{ formatTime(entry.enteredAtMs) }}</span>
+      </li>
+    </ul>
+  </section>
+</section>
